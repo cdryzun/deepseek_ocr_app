@@ -72,6 +72,13 @@ FRONTEND_PORT=3000
 MODEL_NAME=deepseek-ai/DeepSeek-OCR
 HF_HOME=/models
 
+# Network Configuration (optional)
+MODEL_DOWNLOAD_PROXY=
+MODEL_DOWNLOAD_HTTP_PROXY=
+MODEL_DOWNLOAD_HTTPS_PROXY=
+MODEL_DOWNLOAD_ALL_PROXY=
+MODEL_DOWNLOAD_NO_PROXY=
+
 # Upload Configuration
 MAX_UPLOAD_SIZE_MB=100  # Maximum file upload size
 
@@ -88,6 +95,11 @@ CROP_MODE=true         # Enable dynamic cropping for large images
 - `FRONTEND_PORT`: Frontend port (default: 3000)
 - `MODEL_NAME`: HuggingFace model identifier
 - `HF_HOME`: Model cache directory
+- `MODEL_DOWNLOAD_PROXY`: Apply the same proxy to HTTP/HTTPS HuggingFace downloads
+- `MODEL_DOWNLOAD_HTTP_PROXY`: Proxy for HTTP model downloads
+- `MODEL_DOWNLOAD_HTTPS_PROXY`: Proxy for HTTPS model downloads
+- `MODEL_DOWNLOAD_ALL_PROXY`: Proxy for SOCKS/all protocols
+- `MODEL_DOWNLOAD_NO_PROXY`: Comma-separated domains that should bypass the proxy
 - `MAX_UPLOAD_SIZE_MB`: Maximum file upload size in megabytes
 - `BASE_SIZE`: Base image processing size (affects memory usage)
 - `IMAGE_SIZE`: Tile size for dynamic cropping

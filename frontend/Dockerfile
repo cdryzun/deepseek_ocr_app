@@ -1,5 +1,5 @@
 # Frontend Dockerfile - React + Vite
-FROM node:18-alpine as build
+FROM proxyhub.cpinnov.run/node:18-alpine as build
 
 WORKDIR /app
 
@@ -7,6 +7,8 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
+RUN npm config set proxy http://10.16.18.2:34567 \
+    && npm config set https-proxy http://10.16.18.2:34567
 RUN npm install --legacy-peer-deps
 
 # Copy all source files
@@ -16,7 +18,7 @@ COPY . .
 RUN npm run build
 
 # Production stage with nginx
-FROM nginx:alpine
+FROM proxyhub.cpinnov.run/nginx:alpine
 
 # Copy built files from build stage
 COPY --from=build /app/dist /usr/share/nginx/html

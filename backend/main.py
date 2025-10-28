@@ -20,6 +20,43 @@ from decouple import config as env_config
 model = None
 tokenizer = None
 
+def apply_model_download_proxy() -> None:
+    """Inject proxy settings for Hugging Face model downloads via env variables."""
+    proxy_env_mappings = [
+        ("MODEL_DOWNLOAD_PROXY", (
+            "http_proxy",
+            "https_proxy",
+            "HTTP_PROXY",
+            "HTTPS_PROXY",
+            "HF_HUB_HTTP_PROXY",
+            "HF_HUB_HTTPS_PROXY",
+            "HUGGINGFACE_HUB_HTTP_PROXY",
+            "HUGGINGFACE_HUB_HTTPS_PROXY",
+        )),
+        ("MODEL_DOWNLOAD_HTTP_PROXY", ("http_proxy", "HTTP_PROXY", "HF_HUB_HTTP_PROXY", "HUGGINGFACE_HUB_HTTP_PROXY")),
+        ("MODEL_DOWNLOAD_HTTPS_PROXY", ("https_proxy", "HTTPS_PROXY", "HF_HUB_HTTPS_PROXY", "HUGGINGFACE_HUB_HTTPS_PROXY")),
+        ("MODEL_DOWNLOAD_ALL_PROXY", ("all_proxy", "ALL_PROXY", "HF_HUB_PROXY", "HUGGINGFACE_HUB_PROXY")),
+        ("MODEL_DOWNLOAD_NO_PROXY", ("no_proxy", "NO_PROXY", "HF_HUB_NO_PROXY", "HUGGINGFACE_HUB_NO_PROXY")),
+    ]
+
+    for source_env, target_envs in proxy_env_mappings:
+        raw_value = env_config(source_env, default=None)
+        if raw_value is None:
+            continue
+
+        value = raw_value.strip()
+        if value:
+            for target_env in target_envs:
+                os.environ[target_env] = value
+            print(f"🌐 Applied proxy from {source_env} to {', '.join(target_envs)}")
+            continue
+
+        cleared = False
+        for target_env in target_envs:
+            cleared = os.environ.pop(target_env, None) is not None or cleared
+        if cleared:
+            print(f"🌐 Cleared proxy via {source_env} for {', '.join(target_envs)}")
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Load model on startup, cleanup on shutdown"""
@@ -30,6 +67,7 @@ async def lifespan(app: FastAPI):
     MODEL_NAME = env_config("MODEL_NAME", default="deepseek-ai/DeepSeek-OCR")
     HF_HOME = env_config("HF_HOME", default="/models")
     os.makedirs(HF_HOME, exist_ok=True)
+    apply_model_download_proxy()
     
     # Load model
     print(f"🚀 Loading {MODEL_NAME}...")
